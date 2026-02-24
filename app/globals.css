@@ -1,0 +1,559 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Navy / Teal / Gold / Cream palette */
+  --color-navy-50: #f0f3f9;
+  --color-navy-100: #d9e0f0;
+  --color-navy-200: #b3c1e0;
+  --color-navy-300: #8da2d1;
+  --color-navy-400: #6683c1;
+  --color-navy-500: #4064b2;
+  --color-navy-600: #2d4a8a;
+  --color-navy-700: #1e3461;
+  --color-navy-800: #0f1e39;
+  --color-navy-900: #0a1628;
+  --color-navy-950: #060e1a;
+
+  --color-teal-50: #effcf8;
+  --color-teal-100: #c6f7e8;
+  --color-teal-200: #8eefd0;
+  --color-teal-300: #55e7b9;
+  --color-teal-400: #2dd4a8;
+  --color-teal-500: #14b8a6;
+  --color-teal-600: #0d9488;
+  --color-teal-700: #0a6e65;
+  --color-teal-800: #064842;
+  --color-teal-900: #032320;
+
+  --color-gold-50: #fffdf0;
+  --color-gold-100: #fff8d6;
+  --color-gold-200: #fff0ad;
+  --color-gold-300: #ffe785;
+  --color-gold-400: #ffd700;
+  --color-gold-500: #d4a800;
+  --color-gold-600: #a88500;
+  --color-gold-700: #7d6300;
+  --color-gold-800: #524100;
+  --color-gold-900: #272000;
+
+  --color-cream-50: #fefdfb;
+  --color-cream-100: #fdf9f0;
+  --color-cream-200: #f9f0db;
+  --color-cream-300: #f5e7c6;
+  --color-cream-400: #f0ddb1;
+  --color-cream-500: #ebd49c;
+
+  --color-primary: var(--color-navy-800);
+  --color-primary-foreground: #ffffff;
+  --color-accent: var(--color-teal-500);
+  --color-accent-foreground: #ffffff;
+
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif), ui-serif, Georgia, serif;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f1e39;
+}
+
+/* ─── Base ─── */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Utility classes ─── */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #ffd700, #d4a800, #ffd700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bg-gradient-navy {
+  background: linear-gradient(135deg, #0a1628, #1e3461, #0f1e39);
+}
+
+.bg-gradient-gold {
+  background: linear-gradient(135deg, #ffd700, #d4a800);
+}
+
+.bg-gradient-teal {
+  background: linear-gradient(135deg, #14b8a6, #0d9488);
+}
+
+/* ─── Enhanced Animations ─── */
+
+/* Shimmer effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Floating motion */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Glow pulse */
+@keyframes pulseGlow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(37, 211, 102, 0.5);
+  }
+
+  50% {
+    box-shadow:
+      0 0 20px rgba(37, 211, 102, 0.8),
+      0 0 40px rgba(37, 211, 102, 0.3);
+  }
+}
+
+/* Fade in from bottom */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in from left */
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Scale in smoothly */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Gradient animation */
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Subtle bounce */
+@keyframes subtleBounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Rotate in 3D */
+@keyframes rotateInY {
+  from {
+    opacity: 0;
+    transform: perspective(1000px) rotateY(90deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: perspective(1000px) rotateY(0deg);
+  }
+}
+
+/* Glow breathing effect */
+@keyframes glowBreathe {
+
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px rgba(20, 184, 166, 0.4));
+  }
+
+  50% {
+    filter: drop-shadow(0 0 20px rgba(20, 184, 166, 0.8));
+  }
+}
+
+/* Staggered glow wave */
+@keyframes glowWave {
+  0% {
+    box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 15px rgba(20, 184, 166, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 15px rgba(20, 184, 166, 0);
+  }
+}
+
+/* Smooth slide up with fade */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Blob pulse */
+@keyframes blobPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    filter: blur(40px);
+  }
+
+  50% {
+    transform: scale(1.1);
+    filter: blur(50px);
+  }
+}
+
+/* Light flicker */
+@keyframes flicker {
+
+  0%,
+  18%,
+  22%,
+  25%,
+  54%,
+  56%,
+  100% {
+    opacity: 1;
+  }
+
+  20%,
+  24%,
+  55% {
+    opacity: 0.85;
+  }
+}
+
+/* Infinity float */
+@keyframes infinityFloat {
+
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+
+  25% {
+    transform: translateY(-15px) translateX(10px);
+  }
+
+  50% {
+    transform: translateY(-20px) translateX(0);
+  }
+
+  75% {
+    transform: translateY(-15px) translateX(-10px);
+  }
+}
+
+/* ─── Animation Classes ─── */
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+  background-size: 200% 100%;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in-left {
+  animation: fadeInLeft 0.8s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.8s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s ease-out forwards;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradientMove 4s ease infinite;
+}
+
+.animate-subtle-bounce {
+  animation: subtleBounce 2s ease-in-out infinite;
+}
+
+.animate-rotate-in-y {
+  animation: rotateInY 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-glow-breathe {
+  animation: glowBreathe 3s ease-in-out infinite;
+}
+
+.animate-glow-wave {
+  animation: glowWave 2s ease-out infinite;
+}
+
+.animate-slide-up-fade {
+  animation: slideUpFade 0.8s ease-out forwards;
+}
+
+.animate-blob-pulse {
+  animation: blobPulse 4s ease-in-out infinite;
+}
+
+.animate-flicker {
+  animation: flicker 3s linear infinite;
+}
+
+.animate-infinity-float {
+  animation: infinityFloat 6s ease-in-out infinite;
+}
+
+/* ─── Stagger delays for sequential animations ─── */
+.animation-delay-100 {
+  animation-delay: 0.1s;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-300 {
+  animation-delay: 0.3s;
+}
+
+.animation-delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animation-delay-500 {
+  animation-delay: 0.5s;
+}
+
+.animation-delay-600 {
+  animation-delay: 0.6s;
+}
+
+.animation-delay-700 {
+  animation-delay: 0.7s;
+}
+
+.animation-delay-800 {
+  animation-delay: 0.8s;
+}
+
+/* ─── Scroll-based reveal ─── */
+.scroll-hidden {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
+}
+
+.scroll-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Custom scrollbar ─── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f3f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #14b8a6, #0d9488);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #0d9488, #0a6e65);
+}
+
+/* ─── Backdrop blur for modals ─── */
+.backdrop-blur-modal {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ─── Card hover effect ─── */
+.card-hover {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* ─── 3D Card ─── */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* ─── Enhanced button animations ─── */
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-glow::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-glow:hover::before {
+  left: 100%;
+}
+
+/* ─── Text reveal animations ─── */
+.text-reveal {
+  position: relative;
+  overflow: hidden;
+}
+
+.text-reveal::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: currentColor;
+  animation: slideLeft 0.6s ease-out forwards;
+}
+
+@keyframes slideLeft {
+  from {
+    left: 0;
+  }
+
+  to {
+    left: 100%;
+  }
+}
+
+/* ─── Parallax effect helper ─── */
+.parallax-slow {
+  transition: transform 0.3s ease-out;
+}
+
+/* ─── Smooth transitions ─── */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.transition-smooth-slow {
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
