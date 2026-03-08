@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "npx tsx scripts/seed.ts",
-    "reset-admin": "npx tsx scripts/reset-admin.ts"
+    "reset-admin": "npx tsx scripts/reset-admin.ts",
+    "cleanup-appointments": "npx tsx scripts/cleanup-appointments.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

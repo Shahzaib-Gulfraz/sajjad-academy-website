@@ -28,7 +28,8 @@ export default function HeroSection({
   initialCourses?: CourseData[];
   initialSettings?: Record<string, string>;
 }) {
-  const [activeCard, setActiveCard] = useState(0);
+  const [activeFace, setActiveFace] = useState(0);
+  const [windowStart, setWindowStart] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [courses, setCourses] = useState<CourseData[]>(initialCourses || []);
   const [loading, setLoading] = useState(!initialCourses);
@@ -39,7 +40,9 @@ export default function HeroSection({
     initialSettings?.whatsappNumber || "923212954720",
   );
   const containerRef = useRef<HTMLDivElement>(null);
-  const carouselRef = useRef<HTMLDivElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [boxDepth, setBoxDepth] = useState(140);
+  const faceCount = 4;
 
   // Fetch courses and settings
   useEffect(() => {
@@ -88,15 +91,51 @@ export default function HeroSection({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Auto-rotate cards
+  // Keep 3D depth synced with actual box width to avoid side gaps
+  useEffect(() => {
+    const element = boxRef.current;
+    if (!element) return;
+
+    const updateDepth = () => {
+      const width = element.getBoundingClientRect().width;
+      const nextDepth = Math.max(80, Math.round(width / 2) - 2);
+      setBoxDepth(nextDepth);
+    };
+
+    updateDepth();
+
+    const observer = new ResizeObserver(updateDepth);
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const rotateDurationMs = 2600;
+  const holdDurationMs = 350;
+
+  // Auto-rotate faces (slow turn + short hold)
   useEffect(() => {
     if (courses.length === 0) return;
 
-    const interval = setInterval(() => {
-      setActiveCard((prev) => (prev + 1) % courses.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [courses.length]);
+    let timer: ReturnType<typeof setTimeout>;
+    const cycleMs = rotateDurationMs + holdDurationMs;
+
+    const tick = () => {
+      setActiveFace((prev) => {
+        const next = (prev + 1) % faceCount;
+        if (next === 0) {
+          setWindowStart((current) => (current + faceCount) % courses.length);
+        }
+        return next;
+      });
+
+      timer = setTimeout(tick, cycleMs);
+    };
+
+    timer = setTimeout(tick, holdDurationMs);
+
+    return () => clearTimeout(timer);
+  }, [courses.length, faceCount, holdDurationMs, rotateDurationMs]);
 
   const cardColors = [
     "from-teal-500 to-teal-700",
@@ -116,37 +155,24 @@ export default function HeroSection({
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
   </svg>
 );
-  // Calculate 3D position for each card
-  const getCardTransform = (index: number) => {
-    const totalCards = courses.length;
-    const angleSlice = (360 / totalCards) * (Math.PI / 180);
-    const currentAngle = angleSlice * index - angleSlice * activeCard;
-    const round = (value: number, precision = 3) =>
-      Number(value.toFixed(precision));
-
-    // Responsive radius and depth
-    const radius = isMobile ? 200 : 320;
-    const depth = isMobile ? 250 : 400;
-
-    const x = Math.sin(currentAngle) * radius;
-    const z = Math.cos(currentAngle) * radius - depth;
-    const rotationY = currentAngle * (180 / Math.PI);
-
-    // Scale based on distance
-    const scale = 0.6 + (Math.cos(currentAngle) + 1) / 4;
-    const opacity = 0.3 + (Math.cos(currentAngle) + 1) / 2.5;
-    const xRounded = round(x);
-    const zRounded = round(z);
-    const rotationYRounded = round(rotationY);
-    const scaleRounded = round(scale);
-    const opacityRounded = round(Math.max(opacity, 0.3));
-
-    return {
-      transform: `translateX(${xRounded}px) translateZ(${zRounded}px) rotateY(${rotationYRounded}deg) scale(${scaleRounded})`,
-      opacity: opacityRounded,
-      zIndex: Math.round(1000 + zRounded),
-    };
+  const depth = boxDepth;
+  const tiltX = isMobile ? -6 : -10;
+  const faceTransforms = ["rotateY(0deg)", "rotateY(90deg)", "rotateY(180deg)", "rotateY(-90deg)"];
+  const faceShadeClasses = [
+    "bg-black/[0.04]",
+    "bg-black/[0.16]",
+    "bg-black/[0.34]",
+    "bg-black/[0.18]",
+  ];
+  const getFaceShadeClass = (faceIndex: number) => {
+    const relative = (faceIndex - activeFace + faceCount) % faceCount;
+    return faceShadeClasses[relative];
   };
+  const visibleCourses = Array.from({ length: faceCount }, (_, faceIndex) => {
+    if (courses.length === 0) return null;
+    const courseIndex = (windowStart + faceIndex) % courses.length;
+    return courses[courseIndex];
+  });
 
   return (
     <section
@@ -176,7 +202,7 @@ export default function HeroSection({
                     </p>
                   </div>
                   <a
-                    href={buildWhatsAppHref()}
+                    href={buildWhatsAppHref(whatsappNumber)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group flex items-center gap-2.5 px-5 sm:px-6 py-3 bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-xl font-bold text-sm sm:text-base text-white shadow-lg shadow-green-500/30 hover:shadow-green-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95 whitespace-nowrap"
@@ -212,7 +238,7 @@ export default function HeroSection({
             </p>
           </div>
 
-          {/* Right column – 3D Carousel */}
+          {/* Right column – 3D Rotating Box */}
           <div
             className="order-2 flex items-center justify-center animate-fade-in-up"
             style={{ animationDelay: "0.4s" }}
@@ -229,110 +255,117 @@ export default function HeroSection({
                 </div>
               ) : (
                 <>
-                  {/* 3D Carousel Container */}
-                  <div
-                    ref={carouselRef}
-                    className="relative w-full h-full"
-                    style={{
-                      perspective: "1200px",
-                      transformStyle: "preserve-3d",
-                    }}
-                  >
-                    {/* Rotating 3D Cards */}
-                    {courses.map((course, index) => {
-                      const { transform, opacity, zIndex } =
-                        getCardTransform(index);
+                  {/* 3D Box Container */}
+                  <div className="relative w-full h-full flex items-center justify-center overflow-visible">
+                    <div ref={boxRef} className="relative w-full max-w-60 xs:max-w-[280px] sm:max-w-sm aspect-3/4">
+                      <div
+                        className="relative w-full h-full transition-transform ease-out"
+                        style={{
+                          transformStyle: "preserve-3d",
+                          transform: `rotateX(${tiltX}deg) rotateY(${activeFace * -90}deg)`,
+                          transitionDuration: `${rotateDurationMs}ms`,
+                        }}
+                      >
+                        {visibleCourses.map((course, faceIndex) => {
+                          if (!course) return null;
 
-                      return (
+                          return (
+                            <div
+                              key={`${course._id}-${faceIndex}-${windowStart}`}
+                              className="absolute inset-0"
+                              style={{
+                                transform: `${faceTransforms[faceIndex]} translateZ(${depth}px)`,
+                                backfaceVisibility: "hidden",
+                              }}
+                            >
+                              <Link
+                                href={`/courses/${course._id}`}
+                                className="block w-full h-full rounded-xl sm:rounded-2xl overflow-hidden shadow-[0_20px_55px_rgba(0,0,0,0.45)] cursor-pointer group/card transition-all duration-300 hover:shadow-[0_24px_65px_rgba(0,0,0,0.55)]"
+                              >
+                                <div
+                                  className={`h-full w-full bg-linear-to-br ${
+                                    cardColors[(windowStart + faceIndex) % cardColors.length]
+                                  } flex flex-col relative overflow-hidden group-hover/card:scale-[1.02] border border-white/10`}
+                                >
+                                  {/* Top Section: Thumbnail */}
+                                  <div className="relative h-2/5 sm:h-1/2 overflow-hidden bg-navy-900/60">
+                                    {course.thumbnail ? (
+                                      <>
+                                        <Image
+                                          src={course.thumbnail}
+                                          alt=""
+                                          fill
+                                          sizes="(max-width: 640px) 240px, (max-width: 1024px) 280px, 384px"
+                                          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-50 blur-xl"
+                                        />
+                                        <Image
+                                          src={course.thumbnail}
+                                          alt={course.name}
+                                          fill
+                                          sizes="(max-width: 640px) 240px, (max-width: 1024px) 280px, 384px"
+                                          className="relative z-10 h-full w-full object-contain transition-transform duration-700 group-hover/card:scale-105"
+                                          loading="lazy"
+                                          fetchPriority={
+                                            faceIndex === activeFace ? "high" : "low"
+                                          }
+                                        />
+                                      </>
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center bg-white/5 backdrop-blur-sm">
+                                        <span className="text-5xl sm:text-6xl animate-pulse">
+                                          📚
+                                        </span>
+                                      </div>
+                                    )}
+                                    <div className="absolute bottom-3 right-3 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-black/40 backdrop-blur-md flex items-center justify-center text-2xl sm:text-3xl shadow-lg border border-white/20 z-20 animate-float">
+                                      {course.icon}
+                                    </div>
+                                    <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent z-10" />
+                                  </div>
+
+                                  {/* Bottom Section: Content */}
+                                  <div className="flex-1 p-4 sm:p-5 lg:p-6 flex flex-col justify-between relative z-10 bg-white/5 backdrop-blur-xs">
+                                    <div className="space-y-2 sm:space-y-3">
+                                      <h3 className="text-base sm:text-lg lg:text-xl font-bold font-serif line-clamp-2 text-white leading-snug tracking-wide">
+                                        {course.name}
+                                      </h3>
+                                      <p className="text-white/80 text-[11px] sm:text-xs leading-relaxed line-clamp-3 font-medium">
+                                        {course.description}
+                                      </p>
+                                    </div>
+
+                                    {/* Footer */}
+                                    <div className="pt-3 sm:pt-4 border-t border-white/10 flex items-center justify-between mt-auto">
+                                      <span className="px-2.5 py-1 bg-white/10 backdrop-blur-md rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-teal-300 border border-teal-500/20">
+                                        {course.classId?.name || "Subject"}
+                                      </span>
+                                      <div className="flex items-center gap-1 text-[11px] sm:text-xs font-bold text-white/90 group-hover/card:translate-x-1 transition-transform">
+                                        <span>Enroll</span>
+                                        <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Shine effect */}
+                                  <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/5 to-transparent animate-shimmer opacity-30 pointer-events-none" />
+                                  <div className={`absolute inset-0 pointer-events-none transition-colors duration-700 ${getFaceShadeClass(faceIndex)}`} />
+                                </div>
+                              </Link>
+                            </div>
+                          );
+                        })}
+
                         <div
-                          key={course._id}
-                          className="absolute left-1/2 top-1/2 w-full max-w-60 xs:max-w-[280px] sm:max-w-sm aspect-3/4 transition-all duration-700 ease-out"
+                          className="absolute inset-0 pointer-events-none"
                           style={{
-                            transformStyle: "preserve-3d",
-                            transform: `translate(-50%, -50%) ${transform}`,
-                            opacity: opacity,
-                            zIndex: zIndex,
-                            perspective: "1000px",
+                            transform: `rotateX(90deg) translateZ(${depth * 0.52}px) scale(0.98)`,
+                            transformOrigin: "center",
                           }}
                         >
-                          <Link
-                            href={`/courses/${course._id}`}
-                            className="block w-full h-full rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl cursor-pointer group/card transition-all duration-300 hover:shadow-3xl"
-                            style={{
-                              transformStyle: "preserve-3d",
-                            }}
-                          >
-                            <div
-                              className={`h-full w-full bg-linear-to-br ${
-                                cardColors[index % cardColors.length]
-                              } flex flex-col relative overflow-hidden group-hover/card:scale-[1.02] border border-white/10`}
-                            >
-                              {/* Top Section: Thumbnail */}
-                              <div className="relative h-2/5 sm:h-1/2 overflow-hidden bg-navy-900/60">
-                                {course.thumbnail ? (
-                                  <>
-                                    <Image
-                                      src={course.thumbnail}
-                                      alt=""
-                                      fill
-                                      sizes="(max-width: 640px) 240px, (max-width: 1024px) 280px, 384px"
-                                      className="absolute inset-0 h-full w-full scale-110 object-cover opacity-50 blur-xl"
-                                    />
-                                    <Image
-                                      src={course.thumbnail}
-                                      alt={course.name}
-                                      fill
-                                      sizes="(max-width: 640px) 240px, (max-width: 1024px) 280px, 384px"
-                                      className="relative z-10 h-full w-full object-contain transition-transform duration-700 group-hover/card:scale-105"
-                                      loading="lazy"
-                                      fetchPriority={
-                                        index === activeCard ? "high" : "low"
-                                      }
-                                    />
-                                  </>
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center bg-white/5 backdrop-blur-sm">
-                                    <span className="text-5xl sm:text-6xl animate-pulse">
-                                      📚
-                                    </span>
-                                  </div>
-                                )}
-                                <div className="absolute bottom-3 right-3 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-black/40 backdrop-blur-md flex items-center justify-center text-2xl sm:text-3xl shadow-lg border border-white/20 z-20 animate-float">
-                                  {course.icon}
-                                </div>
-                                <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent z-10" />
-                              </div>
-
-                              {/* Bottom Section: Content */}
-                              <div className="flex-1 p-4 sm:p-5 lg:p-6 flex flex-col justify-between relative z-10 bg-white/5 backdrop-blur-xs">
-                                <div className="space-y-2 sm:space-y-3">
-                                  <h3 className="text-base sm:text-lg lg:text-xl font-bold font-serif line-clamp-2 text-white leading-snug tracking-wide">
-                                    {course.name}
-                                  </h3>
-                                  <p className="text-white/80 text-[11px] sm:text-xs leading-relaxed line-clamp-3 font-medium">
-                                    {course.description}
-                                  </p>
-                                </div>
-
-                                {/* Footer */}
-                                <div className="pt-3 sm:pt-4 border-t border-white/10 flex items-center justify-between mt-auto">
-                                  <span className="px-2.5 py-1 bg-white/10 backdrop-blur-md rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-teal-300 border border-teal-500/20">
-                                    {course.classId?.name || "Subject"}
-                                  </span>
-                                  <div className="flex items-center gap-1 text-[11px] sm:text-xs font-bold text-white/90 group-hover/card:translate-x-1 transition-transform">
-                                    <span>Enroll</span>
-                                    <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Shine effect */}
-                              <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/5 to-transparent animate-shimmer opacity-30 pointer-events-none" />
-                            </div>
-                          </Link>
+                          <div className="h-full w-full rounded-xl sm:rounded-2xl bg-linear-to-b from-white/18 via-white/7 to-transparent border border-white/12" />
                         </div>
-                      );
-                    })}
+                      </div>
+                    </div>
 
                     {/* 3D Light Sources */}
                     <div className="absolute inset-0 pointer-events-none">
@@ -343,16 +376,16 @@ export default function HeroSection({
 
                   {/* Card Indicators */}
                   <div className="absolute bottom-5 lg:bottom-15 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 z-50">
-                    {courses.map((_, i) => (
+                    {Array.from({ length: faceCount }).map((_, i) => (
                       <button
                         key={i}
-                        onClick={() => setActiveCard(i)}
+                        onClick={() => setActiveFace(i)}
                         className={`rounded-full transition-all duration-300 ${
-                          i === activeCard
+                          i === activeFace
                             ? "w-7 sm:w-9 h-2 sm:h-2.5 bg-linear-to-r from-teal-400 to-teal-300 shadow-lg shadow-teal-500/50 animate-glow-breathe"
                             : "w-2 sm:w-2.5 h-2 sm:h-2.5 bg-white/20 hover:bg-white/40 hover:scale-125"
                         }`}
-                        aria-label={`Go to course ${i + 1}`}
+                        aria-label={`Go to box face ${i + 1}`}
                       />
                     ))}
                   </div>

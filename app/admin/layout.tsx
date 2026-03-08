@@ -17,7 +17,6 @@ import {
   FolderTree,
   Crown,
   Mail,
-  CalendarDays,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,7 +30,6 @@ const sidebarItems = [
   { label: "Materials", href: "/admin/materials", icon: FileText },
   { label: "Premium Content", href: "/admin/premium-content", icon: Crown },
   { label: "Messages", href: "/admin/messages", icon: Mail },
-  { label: "Appointments", href: "/admin/appointments", icon: CalendarDays },
   { label: "FAQs", href: "/admin/faqs", icon: HelpCircle },
   { label: "Faculty", href: "/admin/faculty", icon: GraduationCap },
   { label: "Settings", href: "/admin/settings", icon: Settings },

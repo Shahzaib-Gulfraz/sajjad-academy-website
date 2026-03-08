@@ -6,7 +6,6 @@ import {
   BookOpen,
   FileText,
   Mail,
-  CalendarDays,
   Loader2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,7 +16,6 @@ interface Stats {
   totalMaterials: number;
   unreadMessages: number;
   recentMessages: { _id: string; name: string; subject: string; status: string; createdAt: string }[];
-  upcomingAppointments: { _id: string; studentName: string; classType: string; subject: string; date: string; time: string }[];
 }
 
 export default function AdminDashboard() {
@@ -65,9 +63,7 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Recent Messages */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-navy-100 overflow-hidden">
+      <div className="bg-white rounded-xl border border-navy-100 overflow-hidden">
           <div className="px-6 py-4 border-b border-navy-100 flex items-center justify-between">
             <h2 className="font-bold text-navy-800">Recent Messages</h2>
             <a href="/admin/messages" className="text-xs text-teal-600 hover:underline font-medium">View All</a>
@@ -91,29 +87,6 @@ export default function AdminDashboard() {
               <div className="px-6 py-8 text-center text-sm text-navy-400">No messages yet</div>
             )}
           </div>
-        </div>
-
-        {/* Upcoming Appointments */}
-        <div className="bg-white rounded-xl border border-navy-100">
-          <div className="px-6 py-4 border-b border-navy-100 flex items-center justify-between">
-            <h2 className="font-bold text-navy-800">Upcoming Appointments</h2>
-            <a href="/admin/appointments" className="text-xs text-teal-600 hover:underline font-medium">View All</a>
-          </div>
-          <div className="divide-y divide-navy-50">
-            {(stats?.upcomingAppointments ?? []).map((apt) => (
-              <div key={apt._id} className="px-6 py-4">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-navy-800">{apt.studentName}</span>
-                  <span className="text-[10px] px-2 py-0.5 bg-teal-50 text-teal-700 rounded-full font-semibold">{apt.classType}</span>
-                </div>
-                <div className="text-xs text-navy-400">{apt.subject} • {apt.date} at {apt.time}</div>
-              </div>
-            ))}
-            {(stats?.upcomingAppointments ?? []).length === 0 && (
-              <div className="px-6 py-8 text-center text-sm text-navy-400">No upcoming appointments</div>
-            )}
-          </div>
-        </div>
       </div>
 
       {/* Quick Actions */}

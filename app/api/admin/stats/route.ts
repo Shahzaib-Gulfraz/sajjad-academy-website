@@ -4,7 +4,6 @@ import Class from "@/models/Class";
 import Course from "@/models/Course";
 import Material from "@/models/Material";
 import Message from "@/models/Message";
-import Appointment from "@/models/Appointment";
 import { requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +22,6 @@ export async function GET(req: NextRequest) {
       totalMaterials,
       unreadMessages,
       recentMessages,
-      upcomingAppointments,
     ] = await Promise.all([
       Class.countDocuments({ isActive: true }),
       Course.countDocuments({ isActive: true }),
@@ -31,10 +29,6 @@ export async function GET(req: NextRequest) {
       Message.countDocuments({ status: "unread" }),
       Message.find()
         .sort({ createdAt: -1 })
-        .limit(5)
-        .lean(),
-      Appointment.find({ status: { $in: ["pending", "confirmed"] } })
-        .sort({ date: 1 })
         .limit(5)
         .lean(),
     ]);
@@ -45,7 +39,6 @@ export async function GET(req: NextRequest) {
       totalMaterials,
       unreadMessages,
       recentMessages,
-      upcomingAppointments,
     });
   } catch (error: unknown) {
     console.error("Admin stats error:", error);
