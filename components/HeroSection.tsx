@@ -28,7 +28,7 @@ export default function HeroSection({
   initialCourses?: CourseData[];
   initialSettings?: Record<string, string>;
 }) {
-  const [activeFace, setActiveFace] = useState(0);
+  const [rotationStep, setRotationStep] = useState(0);
   const [windowStart, setWindowStart] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [courses, setCourses] = useState<CourseData[]>(initialCourses || []);
@@ -41,7 +41,7 @@ export default function HeroSection({
   );
   const containerRef = useRef<HTMLDivElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
-  const [boxDepth, setBoxDepth] = useState(140);
+  const [boxSize, setBoxSize] = useState({ width: 280, height: 192 });
   const faceCount = 4;
 
   // Fetch courses and settings
@@ -97,9 +97,11 @@ export default function HeroSection({
     if (!element) return;
 
     const updateDepth = () => {
-      const width = element.getBoundingClientRect().width;
-      const nextDepth = Math.max(80, Math.round(width / 2) - 2);
-      setBoxDepth(nextDepth);
+      const rect = element.getBoundingClientRect();
+      setBoxSize({
+        width: Math.max(1, rect.width),
+        height: Math.max(1, rect.height),
+      });
     };
 
     updateDepth();
@@ -110,8 +112,33 @@ export default function HeroSection({
     return () => observer.disconnect();
   }, []);
 
-  const rotateDurationMs = 2600;
-  const holdDurationMs = 350;
+  const rotateDurationMs = 3400;
+  const holdDurationMs = 260;
+  const activeFace = ((rotationStep % faceCount) + faceCount) % faceCount;
+
+  const advanceFaces = (steps: number) => {
+    if (steps <= 0) return;
+
+    setRotationStep((previousStep) => {
+      const previousFace =
+        ((previousStep % faceCount) + faceCount) % faceCount;
+      const wraps = Math.floor((previousFace + steps) / faceCount);
+
+      if (wraps > 0 && courses.length > 0) {
+        setWindowStart(
+          (current) => (current + wraps * faceCount) % courses.length,
+        );
+      }
+
+      return previousStep + steps;
+    });
+  };
+
+  const handleIndicatorClick = (targetFace: number) => {
+    const forwardSteps = (targetFace - activeFace + faceCount) % faceCount;
+    if (forwardSteps === 0) return;
+    advanceFaces(forwardSteps);
+  };
 
   // Auto-rotate faces (slow turn + short hold)
   useEffect(() => {
@@ -121,13 +148,7 @@ export default function HeroSection({
     const cycleMs = rotateDurationMs + holdDurationMs;
 
     const tick = () => {
-      setActiveFace((prev) => {
-        const next = (prev + 1) % faceCount;
-        if (next === 0) {
-          setWindowStart((current) => (current + faceCount) % courses.length);
-        }
-        return next;
-      });
+      advanceFaces(1);
 
       timer = setTimeout(tick, cycleMs);
     };
@@ -135,7 +156,7 @@ export default function HeroSection({
     timer = setTimeout(tick, holdDurationMs);
 
     return () => clearTimeout(timer);
-  }, [courses.length, faceCount, holdDurationMs, rotateDurationMs]);
+  }, [courses.length, holdDurationMs, rotateDurationMs]);
 
   const cardColors = [
     "from-teal-500 to-teal-700",
@@ -155,7 +176,8 @@ export default function HeroSection({
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
   </svg>
 );
-  const depth = boxDepth;
+  const depth = Math.max(80, Math.round(boxSize.width / 2) - 1);
+  const halfHeight = Math.round(boxSize.height / 2);
   const tiltX = isMobile ? -6 : -10;
   const faceTransforms = ["rotateY(0deg)", "rotateY(90deg)", "rotateY(180deg)", "rotateY(-90deg)"];
   const faceShadeClasses = [
@@ -247,7 +269,7 @@ export default function HeroSection({
               {loading ? (
                 <HeroSkeleton />
               ) : courses.length === 0 ? (
-                <div className="w-full h-full rounded-xl sm:rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 flex flex-col items-center justify-center p-6">
+                <div className="w-full h-full rounded-none bg-white/5 backdrop-blur-sm border border-white/10 flex flex-col items-center justify-center p-6">
                   <div className="text-5xl mb-4">📚</div>
                   <p className="text-white/60 text-sm text-center">
                     No courses available
@@ -257,12 +279,12 @@ export default function HeroSection({
                 <>
                   {/* 3D Box Container */}
                   <div className="relative w-full h-full flex items-center justify-center overflow-visible">
-                    <div ref={boxRef} className="relative w-full max-w-60 xs:max-w-[280px] sm:max-w-sm aspect-3/4">
+                    <div ref={boxRef} className="relative w-full max-w-xs xs:max-w-[340px] sm:max-w-md aspect-[16/11]">
                       <div
                         className="relative w-full h-full transition-transform ease-out"
                         style={{
                           transformStyle: "preserve-3d",
-                          transform: `rotateX(${tiltX}deg) rotateY(${activeFace * -90}deg)`,
+                          transform: `rotateX(${tiltX}deg) rotateY(${rotationStep * -90}deg)`,
                           transitionDuration: `${rotateDurationMs}ms`,
                         }}
                       >
@@ -280,7 +302,7 @@ export default function HeroSection({
                             >
                               <Link
                                 href={`/courses/${course._id}`}
-                                className="block w-full h-full rounded-xl sm:rounded-2xl overflow-hidden shadow-[0_20px_55px_rgba(0,0,0,0.45)] cursor-pointer group/card transition-all duration-300 hover:shadow-[0_24px_65px_rgba(0,0,0,0.55)]"
+                                className="block w-full h-full rounded-none overflow-hidden shadow-[0_20px_55px_rgba(0,0,0,0.45)] cursor-pointer group/card transition-all duration-300 hover:shadow-[0_24px_65px_rgba(0,0,0,0.55)]"
                               >
                                 <div
                                   className={`h-full w-full bg-linear-to-br ${
@@ -356,13 +378,31 @@ export default function HeroSection({
                         })}
 
                         <div
-                          className="absolute inset-0 pointer-events-none"
+                          className="absolute left-0 pointer-events-none"
                           style={{
-                            transform: `rotateX(90deg) translateZ(${depth * 0.52}px) scale(0.98)`,
-                            transformOrigin: "center",
+                            top: "50%",
+                            marginTop: `-${depth}px`,
+                            width: "100%",
+                            height: `${depth * 2}px`,
+                            transform: `rotateX(90deg) translateZ(${halfHeight}px)`,
+                            transformOrigin: "center center",
                           }}
                         >
-                          <div className="h-full w-full rounded-xl sm:rounded-2xl bg-linear-to-b from-white/18 via-white/7 to-transparent border border-white/12" />
+                          <div className="h-full w-full rounded-none bg-linear-to-b from-white/24 via-white/12 to-black/15 border border-white/12" />
+                        </div>
+
+                        <div
+                          className="absolute left-0 pointer-events-none"
+                          style={{
+                            top: "50%",
+                            marginTop: `-${depth}px`,
+                            width: "100%",
+                            height: `${depth * 2}px`,
+                            transform: `rotateX(-90deg) translateZ(${halfHeight}px)`,
+                            transformOrigin: "center center",
+                          }}
+                        >
+                          <div className="h-full w-full rounded-none bg-black/35 border border-white/6" />
                         </div>
                       </div>
                     </div>
@@ -379,7 +419,7 @@ export default function HeroSection({
                     {Array.from({ length: faceCount }).map((_, i) => (
                       <button
                         key={i}
-                        onClick={() => setActiveFace(i)}
+                        onClick={() => handleIndicatorClick(i)}
                         className={`rounded-full transition-all duration-300 ${
                           i === activeFace
                             ? "w-7 sm:w-9 h-2 sm:h-2.5 bg-linear-to-r from-teal-400 to-teal-300 shadow-lg shadow-teal-500/50 animate-glow-breathe"
@@ -483,14 +523,14 @@ function HeroSkeleton() {
   return (
     <div
       className="absolute left-1/2 top-1/2 
-      w-full max-w-60 xs:max-w-[280px] sm:max-w-sm 
-      aspect-3/4 transition-all duration-700 ease-out"
+      w-full max-w-xs xs:max-w-[340px] sm:max-w-md 
+      aspect-[16/11] transition-all duration-700 ease-out"
       style={{
         transform: "translate(-50%, -50%)",
       }}
     >
       <div
-        className="h-full w-full rounded-xl sm:rounded-2xl overflow-hidden 
+        className="h-full w-full rounded-none overflow-hidden 
         bg-white/5 backdrop-blur-sm border border-white/10 
         flex flex-col animate-pulse"
       >
