@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import dbConnect from "@/lib/dbConnect";
 import FAQ from "@/models/FAQ";
 import { requireAdmin } from "@/lib/auth";
@@ -20,6 +21,9 @@ export async function GET(
     if (!faq) {
       return NextResponse.json({ error: "FAQ not found" }, { status: 404 });
     }
+
+    revalidatePath("/");
+    revalidatePath("/admin/faqs");
 
     return NextResponse.json({ faq });
   } catch (error: unknown) {
@@ -86,6 +90,9 @@ export async function DELETE(
     if (!faq) {
       return NextResponse.json({ error: "FAQ not found" }, { status: 404 });
     }
+
+    revalidatePath("/");
+    revalidatePath("/admin/faqs");
 
     return NextResponse.json({ message: "FAQ deleted successfully" });
   } catch (error: unknown) {

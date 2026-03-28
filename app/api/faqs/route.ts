@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import dbConnect from "@/lib/dbConnect";
 import FAQ from "@/models/FAQ";
 import { requireAdmin } from "@/lib/auth";
@@ -43,6 +44,10 @@ export async function POST(req: NextRequest) {
       order: body.order || 0,
       isActive: body.isActive !== false,
     });
+
+    // Refresh homepage/admin caches so newly added FAQ appears without hard refresh.
+    revalidatePath("/");
+    revalidatePath("/admin/faqs");
 
     return NextResponse.json({ faq }, { status: 201 });
   } catch (error: unknown) {
