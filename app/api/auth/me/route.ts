@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import { requireAuth } from "@/lib/auth";
-import Course from "@/models/Course";
+import "@/models/Course";
 
 export async function GET(req: NextRequest) {
   const result = await requireAuth(req);
