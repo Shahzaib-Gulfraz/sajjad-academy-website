@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { Plus, Edit2, Trash2, X, Loader2, Upload, Image as ImageIcon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -150,7 +151,16 @@ export default function AdminCoursesPage() {
             <div key={c._id} className="bg-white rounded-xl border border-navy-100 overflow-hidden card-hover">
               {c.thumbnail && (
                 <div className="h-40 bg-navy-50 overflow-hidden">
-                  <img src={c.thumbnail} alt={c.name} className="w-full h-full object-cover" />
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={c.thumbnail}
+                      alt={c.name}
+                      fill
+                      unoptimized
+                      sizes="(max-width: 1024px) 100vw, 33vw"
+                      className="object-cover"
+                    />
+                  </div>
                 </div>
               )}
               <div className="p-5">
@@ -201,7 +211,16 @@ export default function AdminCoursesPage() {
                 <label className="block text-sm font-medium text-navy-700 mb-1">Thumbnail</label>
                 <div className="flex items-center gap-4">
                   {thumbnailPreview ? (
-                    <img src={thumbnailPreview} alt="thumb" className="w-20 h-20 rounded-lg object-cover border" />
+                    <div className="relative w-20 h-20 rounded-lg overflow-hidden border">
+                      <Image
+                        src={thumbnailPreview}
+                        alt="thumb"
+                        fill
+                        unoptimized
+                        sizes="80px"
+                        className="object-cover"
+                      />
+                    </div>
                   ) : (
                     <div className="w-20 h-20 rounded-lg border-2 border-dashed border-navy-200 flex items-center justify-center">
                       <ImageIcon className="w-6 h-6 text-navy-300" />

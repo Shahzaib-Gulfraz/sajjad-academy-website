@@ -1,4 +1,4 @@
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 import Header from "@/components/Header";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
 import HeroSection from "@/components/HeroSection";
@@ -6,18 +6,20 @@ import dbConnect from "@/lib/dbConnect";
 import Setting from "@/models/Setting";
 import Course from "@/models/Course";
 
+export const dynamic = "force-dynamic";
+
 // Lazy load below-fold components for better initial load performance
-const FeaturesStrip = dynamic(() => import("@/components/FeaturesStrip"));
-const SubjectsSection = dynamic(() => import("@/components/SubjectsSection"));
-const WhyChooseUs = dynamic(() => import("@/components/WhyChooseUs"));
-const TestimonialsSection = dynamic(
+const FeaturesStrip = dynamicImport(() => import("@/components/FeaturesStrip"));
+const SubjectsSection = dynamicImport(() => import("@/components/SubjectsSection"));
+const WhyChooseUs = dynamicImport(() => import("@/components/WhyChooseUs"));
+const TestimonialsSection = dynamicImport(
   () => import("@/components/TestimonialsSection"),
 );
-const CTASection = dynamic(() => import("@/components/CTASection"));
-const FacultySection = dynamic(() => import("@/components/FacultySection"));
-const FAQSection = dynamic(() => import("@/components/FAQSection"));
-const Footer = dynamic(() => import("@/components/Footer"));
-const FloatingElements = dynamic(() => import("@/components/FloatingElements"));
+const CTASection = dynamicImport(() => import("@/components/CTASection"));
+const FacultySection = dynamicImport(() => import("@/components/FacultySection"));
+const FAQSection = dynamicImport(() => import("@/components/FAQSection"));
+const Footer = dynamicImport(() => import("@/components/Footer"));
+const FloatingElements = dynamicImport(() => import("@/components/FloatingElements"));
 
 async function getInitialData() {
   try {

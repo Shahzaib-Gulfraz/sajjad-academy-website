@@ -6,6 +6,8 @@ import Material from "@/models/Material";
 import PremiumContent from "@/models/PremiumContent";
 import { requireAdmin } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/courses/:id — public: single course with related data
 export async function GET(
   req: NextRequest,

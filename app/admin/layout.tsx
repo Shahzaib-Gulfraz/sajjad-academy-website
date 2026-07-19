@@ -12,7 +12,6 @@ import {
   FileText,
   Menu,
   HelpCircle,
-  MessageSquare,
   Layers,
   FolderTree,
   Crown,

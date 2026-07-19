@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import {
     Plus,
     Search,
@@ -13,7 +14,6 @@ import {
     GraduationCap,
     Image as ImageIcon,
     Check,
-    MoreVertical,
     Upload
 } from "lucide-react";
 import { useRef } from "react";
@@ -59,7 +59,7 @@ export default function FacultyAdmin() {
     const [imagePreview, setImagePreview] = useState("");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const fetchFaculty = async () => {
+    const fetchFaculty = useCallback(async () => {
         try {
             const res = await fetch("/api/faculty?all=true", {
                 headers: { Authorization: `Bearer ${token}` },
@@ -72,11 +72,11 @@ export default function FacultyAdmin() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [token]);
 
     useEffect(() => {
         if (token) fetchFaculty();
-    }, [token]);
+    }, [token, fetchFaculty]);
 
     const handleOpenModal = (member?: FacultyMember) => {
         setImageFile(null);
@@ -190,7 +190,7 @@ export default function FacultyAdmin() {
             });
             if (res.ok) fetchFaculty();
             else alert("Failed to delete faculty member");
-        } catch (error) {
+        } catch {
             alert("Error deleting faculty member");
         }
     };
@@ -302,7 +302,14 @@ export default function FacultyAdmin() {
                                             <div className="flex items-center gap-3">
                                                 <div className="w-12 h-12 rounded-xl bg-navy-100 overflow-hidden relative border border-navy-200">
                                                     {f.image ? (
-                                                        <img src={f.image} alt={f.name} className="w-full h-full object-cover" />
+                                                        <Image
+                                                            src={f.image}
+                                                            alt={f.name}
+                                                            fill
+                                                            unoptimized
+                                                            sizes="48px"
+                                                            className="object-cover"
+                                                        />
                                                     ) : (
                                                         <User className="w-6 h-6 text-navy-300 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                                                     )}
@@ -445,7 +452,14 @@ export default function FacultyAdmin() {
                                 <div className="flex items-center gap-4 p-4 rounded-xl border-2 border-dashed border-navy-100 bg-navy-50/50">
                                     <div className="w-16 h-16 rounded-xl bg-white border border-navy-100 overflow-hidden shrink-0 flex items-center justify-center">
                                         {imagePreview ? (
-                                            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                            <Image
+                                                src={imagePreview}
+                                                alt="Preview"
+                                                fill
+                                                unoptimized
+                                                sizes="64px"
+                                                className="object-cover"
+                                            />
                                         ) : (
                                             <ImageIcon className="w-6 h-6 text-navy-200" />
                                         )}

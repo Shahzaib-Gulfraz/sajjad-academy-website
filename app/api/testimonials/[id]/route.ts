@@ -3,6 +3,8 @@ import dbConnect from "@/lib/dbConnect";
 import Testimonial from "@/models/Testimonial";
 import { requireAdmin } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 interface RouteContext {
   params: Promise<{ id: string }>;
 }

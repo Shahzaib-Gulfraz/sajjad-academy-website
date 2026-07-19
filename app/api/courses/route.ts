@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Course from "@/models/Course";
-import Class from "@/models/Class";
 import { requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";

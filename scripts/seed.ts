@@ -39,36 +39,6 @@ loadEnv();
 
 // ─── Models (inline to avoid Next.js module issues) ───
 
-const MaterialSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, default: "" },
-  type: { type: String, enum: ["free", "premium"], default: "free" },
-  fileUrl: String,
-  filePublicId: String,
-  fileType: String,
-});
-
-const CourseSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true },
-    level: { type: String, enum: ["igcse", "as", "a2"], required: true },
-    category: { type: String, required: true },
-    icon: { type: String, default: "📘" },
-    description: { type: String, default: "" },
-    tags: [String],
-    fee: { type: Number, default: 0 },
-    instructor: { type: String, default: "" },
-    resources: {
-      notes: [MaterialSchema],
-      quizzes: [MaterialSchema],
-      pastPapers: [MaterialSchema],
-      videos: [MaterialSchema],
-    },
-    isActive: { type: Boolean, default: true },
-  },
-  { timestamps: true }
-);
-
 const UserSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -92,7 +62,6 @@ const SettingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Course = mongoose.models.Course || mongoose.model("Course", CourseSchema);
 const User = mongoose.models.User || mongoose.model("User", UserSchema);
 const Setting = mongoose.models.Setting || mongoose.model("Setting", SettingSchema);
 

@@ -3,6 +3,8 @@ import dbConnect from "@/lib/dbConnect";
 import PremiumContent from "@/models/PremiumContent";
 import { requireAdmin } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/premium-content/:id
 export async function GET(
     _req: NextRequest,

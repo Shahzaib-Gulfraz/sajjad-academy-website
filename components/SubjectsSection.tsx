@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { getColorForName } from "@/lib/data";
 
@@ -143,16 +144,22 @@ export default function SubjectsSection() {
                     {course.thumbnail ? (
                       <div className="relative w-full h-full">
                         {/* Blurred Background Filler */}
-                        <img
+                        <Image
                           src={course.thumbnail}
                           alt=""
-                          className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40 scale-110"
+                          fill
+                          unoptimized
+                          sizes="(max-width: 1024px) 100vw, 33vw"
+                          className="absolute inset-0 object-cover blur-xl opacity-40 scale-110"
                         />
                         {/* Main Image (Full) */}
-                        <img
+                        <Image
                           src={course.thumbnail}
                           alt={course.name}
-                          className="relative z-10 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                          fill
+                          unoptimized
+                          sizes="(max-width: 1024px) 100vw, 33vw"
+                          className="relative z-10 object-contain transition-transform duration-500 group-hover:scale-105"
                         />
                       </div>
                     ) : (

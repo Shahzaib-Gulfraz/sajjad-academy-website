@@ -4,6 +4,8 @@ import MaterialType from "@/models/MaterialType";
 import Material from "@/models/Material";
 import { requireAdmin } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/material-types/:id
 export async function GET(
     _req: NextRequest,

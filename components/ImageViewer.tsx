@@ -74,6 +74,8 @@ export default function ImageViewer({ src, title }: ImageViewerProps) {
                     className="transition-transform duration-200 ease-out flex items-center justify-center"
                     style={{ transform: `scale(${zoom})` }}
                 >
+                    {/* Using native img here keeps zoom/pan behavior predictable for arbitrary image sources. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={src}
                         alt={title || "Preview"}

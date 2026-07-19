@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Trash2, Eye, Loader2, Mail, MailOpen, MessageCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -21,7 +21,7 @@ export default function AdminMessagesPage() {
 
     const authHeaders = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
 
-    const fetchMessages = async () => {
+    const fetchMessages = useCallback(async () => {
         try {
             const url = filter ? `/api/messages?status=${filter}` : "/api/messages";
             const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
@@ -29,9 +29,9 @@ export default function AdminMessagesPage() {
             setMessages(Array.isArray(data) ? data : []);
         } catch (e) { console.error(e); }
         finally { setLoading(false); }
-    };
+    }, [token, filter]);
 
-    useEffect(() => { if (token) fetchMessages(); }, [token, filter]);
+    useEffect(() => { if (token) fetchMessages(); }, [token, fetchMessages]);
 
     const openMessage = async (msg: MessageData) => {
         setSelected(msg);

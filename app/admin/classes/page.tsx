@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Plus, Edit2, Trash2, X, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -27,16 +27,16 @@ export default function AdminClassesPage() {
 
     const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
 
-    const fetchClasses = async () => {
+    const fetchClasses = useCallback(async () => {
         try {
             const res = await fetch("/api/classes", { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
             const data = await res.json();
             setClasses(Array.isArray(data) ? data : []);
         } catch (e) { console.error(e); }
         finally { setLoading(false); }
-    };
+    }, [token]);
 
-    useEffect(() => { if (token) fetchClasses(); }, [token]);
+    useEffect(() => { if (token) fetchClasses(); }, [token, fetchClasses]);
 
     const openAdd = () => { setEditId(null); setForm(emptyForm); setShowModal(true); };
     const openEdit = (c: ClassData) => {

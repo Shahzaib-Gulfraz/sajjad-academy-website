@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import dbConnect from "@/lib/dbConnect";
 import Setting from "@/models/Setting";
 import { requireAdmin, getAuthUser } from "@/lib/auth";
@@ -73,6 +74,9 @@ export async function PUT(req: NextRequest) {
     );
 
     await Promise.all(operations);
+
+    revalidatePath("/");
+    revalidatePath("/admin/settings");
 
     return NextResponse.json({ message: "Settings updated" });
   } catch (error: unknown) {

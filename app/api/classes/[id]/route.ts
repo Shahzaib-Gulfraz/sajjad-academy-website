@@ -3,6 +3,8 @@ import dbConnect from "@/lib/dbConnect";
 import Class from "@/models/Class";
 import { requireAdmin } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/classes/:id — public: single class
 export async function GET(
     _req: NextRequest,

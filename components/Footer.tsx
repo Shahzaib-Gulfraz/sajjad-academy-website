@@ -47,12 +47,6 @@ async function getSettings() {
   }
 }
 
-const resources = [
-  { name: "Free Notes", href: "/courses" },
-  { name: "Past Papers", href: "/courses" },
-  { name: "Video Lectures", href: "/courses" },
-];
-
 export default async function Footer() {
   const [popularSubjects, settings] = await Promise.all([
     getPopularSubjects(),
